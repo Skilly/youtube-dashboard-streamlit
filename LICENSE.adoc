@@ -1,0 +1,31 @@
+Michael Scheepers Proprietary Software License Statement of Intent
+
+Copyright (c) 2025 Michael Scheepers
+
+Version 1.0
+
+Ownership and Restrictions
+
+This document outlines the rules governing the use of the proprietary software developed by Michael Scheepers, referred to as the "Software." By obtaining possession of this Software, you acknowledge that no rights to the Software are granted unless explicitly provided in a separate written document.
+
+Ownership
+
+The Software is the exclusive property of Michael Scheepers. All intellectual property rights, including copyrights, patents, trademarks, trade secrets, and any other proprietary rights associated with the Software, are retained by Michael Scheepers.
+
+No Usage Rights for any Parties
+
+External (to Michael Scheepers) parties are explicitly prohibited from using, sublicensing, distributing, selling, leasing, renting, modifying, or otherwise providing the Software or any part of it unless they receive explicit written permission from Michael Scheepers. No implied rights or licenses are extended to either second or third parties.
+
+Confidentiality
+
+You must treat the Software and all related information as confidential. Disclosure, dissemination, or making the Software available to any third party is strictly prohibited without prior written consent from Michael Scheepers.
+
+Governing Law
+
+This license is governed by and construed in accordance with the laws of Australia.
+
+Intent
+
+This document serves as a clear statement of intent by Michael Scheepers to protect his ownership and intellectual property rights associated with the Software and to emphasize that no external parties have any rights to its use, modification, distribution, or any other usage unless explicitly granted via a separate written document.
+
+By obtaining possession of the Software, you acknowledge and agree to this Statement of Intent.

@@ -1,0 +1,19 @@
+= Data Science Portfolio Project From Scratch | Building a YouTube Data Dashboard with Streamlit
+:toc: left
+:toclevels: 6
+:linkattrs:
+:icons: font
+:source-highlighter: highlight.js
+
+== Overview
+This project is Day 4 of the #30DaysOfStreamlit challenge
+
+== Run program
+[,bash]
+----
+streamlit run src/app/main.py
+----
+
+== Reference
+* https://www.youtube.com/watch?v=Yk-unX4KnV4[Building a Datascience project from scratch^]
+* https://www.kaggle.com/datasets/kenjee/ken-jee-youtube-data/data?select=Video_Performance_Over_Time.csv[Data for project, on Kaggle^]
