@@ -29,6 +29,16 @@ def style_positive(v, props=''):
     except:
         pass
 
+# Utility functions
+def audience_simple(country):
+    """ Show top countries """
+    if country == 'US':
+        return 'USA'
+    elif country == 'IN':
+        return 'India'
+    else:
+        return 'Other'
+
 # load data
 @st.cache_data
 def load_data():
@@ -68,9 +78,21 @@ median_agg = df_agg_diff[df_agg_diff['Video publish time'] >= metric_date_12mo][
 numeric_cols = np.array((df_agg_diff.dtypes == 'float64') | (df_agg_diff.dtypes == 'int64'))
 df_agg_diff.iloc[:,numeric_cols] = (df_agg_diff.iloc[:,numeric_cols] - median_agg).div(median_agg)
 
-## What metrics will be relevant?
-## Difference from baseline
-## Percent change by video
+# Calcs for time-series data
+## merge daily data with publish data to get delta
+df_time_diff = pd.merge(df_time, df_agg.loc[:,['Video','Video publish time']], left_on = 'External Video ID', right_on = 'Video', how = 'left')
+df_time_diff['days_published'] = (df_time_diff['Date'] - df_time_diff['Video publish time']).dt.days
+
+## get last 12 months of data rather than all data
+date_12mo = df_agg['Video publish time'].max() - pd.DateOffset(months = 12)
+df_time_diff_yr = df_time_diff[df_time_diff['Video publish time'] >= date_12mo]
+
+## Get daily view data (first 30), median & percentiles
+views_days = pd.pivot_table(df_time_diff_yr, index = 'days_published', values = 'Views', aggfunc = [np.mean, np.median, lambda x: np.percentile(x,80), lambda x: np.percentile(x,20)]).reset_index()
+views_days.columns = ['days_published', 'mean_views', 'median_views', '80pct_views', '20pct_views']
+views_days = views_days[views_days['days_published'].between(0,30)]
+views_cummulative = views_days.loc[:,['days_published', 'median_views', '80pct_views', '20pct_views']]
+views_cummulative.loc[:,['median_views', '80pct_views', '20pct_views']] = views_cummulative.loc[:,['median_views', '80pct_views', '20pct_views']].cumsum()
 
 # Build dashboard
 st.title('YouTube Dashboard')
@@ -114,11 +136,46 @@ if add_sidebar == 'Aggregate Metrics':
     st.dataframe(df_agg_diff_final.style.hide().applymap(style_negative,props='color:red;').applymap(style_positive,props='color:green;').format(df_to_pct))
 
 else:
+    # Individual video analysis
     st.write('Individual Video Analysis')
+    video_select = st.selectbox('Select video', df_agg_diff['Video title'].unique())
 
-# st.write (median_agg)
+    # Subscriber analysis
+    agg_filtered = df_agg[df_agg['Video title'] == video_select]
+    agg_sub_filtered = df_agg_sub[df_agg_sub['Video Title'] == video_select]
+    agg_sub_filtered['Country'] = agg_sub_filtered['Country Code'].apply(audience_simple)
+    agg_sub_filtered.sort_values('Is Subscribed', inplace = True)
 
-## Total picture
-## Individual video
+    fig = px.bar(agg_sub_filtered, x = 'Views', y = "Is Subscribed", color = 'Country', orientation = 'h')
+    st.plotly_chart(fig)
 
-# Improvements
+    # Time series graph
+    agg_time_filtered = df_time_diff[df_time_diff['Video Title'] == video_select]
+    first_30 = agg_time_filtered[agg_time_filtered['days_published'].between(0,30)]
+    first_30 = first_30.sort_values('days_published')
+
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(x = views_cummulative['days_published'], 
+                              y = views_cummulative['20pct_views'], 
+                              mode = 'lines', 
+                              name = '20th perecentile', 
+                              line=dict(color='purple', dash='dash')))
+    fig2.add_trace(go.Scatter(x = views_cummulative['days_published'], 
+                              y = views_cummulative['median_views'], 
+                              mode = 'lines', 
+                              name = '50th perecentile', 
+                              line=dict(color='black', dash='dash')))
+    fig2.add_trace(go.Scatter(x = views_cummulative['days_published'], 
+                              y = views_cummulative['80pct_views'], 
+                              mode = 'lines', 
+                              name = '80th perecentile', 
+                              line=dict(color='royalblue', dash='dash')))
+    fig2.add_trace(go.Scatter(x = first_30['days_published'], 
+                              y = first_30['Views'].cumsum(), 
+                              mode = 'lines', 
+                              name = 'Current Video', 
+                              line=dict(color='firebrick', width=8)))
+    fig2.update_layout(title='View comparison for first 30 days',
+                      xaxis_title = 'Days since Published',
+                      yaxis_title = 'Cumulative views')
+    st.plotly_chart(fig2)
